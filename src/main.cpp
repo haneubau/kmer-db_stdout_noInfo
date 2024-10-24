@@ -23,8 +23,8 @@ int main(int argc, char **argv)
 {
 	Log::getInstance(Log::LEVEL_NORMAL).enable();
 	
-	LOG_NORMAL << "Kmer-db version " << VERSION << " (" << DATE << ")" << endl
-		<< "S. Deorowicz, A. Gudys, M. Dlugosz, M. Kokot, and A. Danek (c) 2018" << endl << endl;
+	//LOG_NORMAL << "Kmer-db version " << VERSION << " (" << DATE << ")" << endl
+	//	<< "S. Deorowicz, A. Gudys, M. Dlugosz, M. Kokot, and A. Danek (c) 2018" << endl << endl;
 
 	Params params;
 
@@ -38,7 +38,7 @@ int main(int argc, char **argv)
 		struct tm* timeinfo;
 		time(&rawtime);
 		timeinfo = localtime(&rawtime);
-		LOG_NORMAL << "Analysis started at " << asctime(timeinfo) << endl;
+		//LOG_NORMAL << "Analysis started at " << asctime(timeinfo) << endl;
 
 		auto console = ConsoleFactory::create(params.mode);
 		if (!console) {
@@ -49,7 +49,7 @@ int main(int argc, char **argv)
 
 		time(&rawtime);
 		timeinfo = localtime(&rawtime);
-		LOG_NORMAL << endl << "Analysis finished at " << asctime(timeinfo) << endl;
+		//LOG_NORMAL << endl << "Analysis finished at " << asctime(timeinfo) << endl;
 	}
 	catch (usage_error& err) {
 		LOG_NORMAL << "ERROR: Incorrect usage" << endl << "See detailed instructions below" << endl << endl;

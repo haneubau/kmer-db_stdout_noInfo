@@ -15,7 +15,7 @@ void New2AllConsole::run(const Params& params)
 		throw usage_error(params.mode);
 	}
 
-	LOG_NORMAL << "Set of new samples  (from " << InputFile::format2string(params.inputFormat) << ") versus entire database comparison" << endl;
+	//LOG_NORMAL << "Set of new samples  (from " << InputFile::format2string(params.inputFormat) << ") versus entire database comparison" << endl;
 
 	const std::string& dbFilename = params.files[0];
 	const std::string& multipleSamples = params.files[1];
@@ -30,25 +30,25 @@ void New2AllConsole::run(const Params& params)
 
 	std::chrono::duration<double> loadingTime{ 0 }, processingTime{ 0 }, dt{ 0 };
 
-	LOG_NORMAL << "Loading k-mer database " << dbFilename << "..." << endl;
+	//LOG_NORMAL << "Loading k-mer database " << dbFilename << "..." << endl;
 	auto start = std::chrono::high_resolution_clock::now();
 	if (!dbFile || !db.deserialize(dbFile)) {
 		throw runtime_error("Cannot open k-mer database " + dbFilename);
 	}
 	dt = std::chrono::high_resolution_clock::now() - start;
-	LOG_NORMAL << "OK (" << dt.count() << " seconds)" << endl << db.printStats() << endl;
+	//LOG_NORMAL << "OK (" << dt.count() << " seconds)" << endl << db.printStats() << endl;
 
 	LOG_DEBUG << "Creating Loader object..." << endl;
 	shared_ptr<MinHashFilter> filter = shared_ptr<MinHashFilter>(new MinHashFilter(db.getFraction(), db.getStartFraction(), db.getKmerLength()));
 
 	LoaderEx loader(filter, params.inputFormat, params.numReaderThreads, params.numThreads, params.multisampleFasta);
 	loader.configure(multipleSamples);
-	LOG_NORMAL << endl;
+	//LOG_NORMAL << endl;
 
 	std::vector<uint32_t> sims;
 
-	LOG_NORMAL << "Processing queries..." << endl;
-	auto totalStart = std::chrono::high_resolution_clock::now();
+	//LOG_NORMAL << "Processing queries..." << endl;
+	//auto totalStart = std::chrono::high_resolution_clock::now();
 
 	// create set of buffers for storing similarities
 	std::vector<std::vector<uint32_t>> buffers(loader.getOutputBuffersCount());
@@ -90,18 +90,19 @@ void New2AllConsole::run(const Params& params)
 
 	// Opening file
 	std::ofstream ofs(similarityFile);
-	ofs << "kmer-length: " << db.getKmerLength() << " fraction: " << db.getFraction() << " ,db-samples ,";
-	std::copy(db.getSampleNames().cbegin(), db.getSampleNames().cend(), ostream_iterator<string>(ofs, ","));
-	ofs << endl;
+	//ofs << "kmer-length: " << db.getKmerLength() << " fraction: " << db.getFraction() << " ,db-samples ,";
+	//std::copy(db.getSampleNames().cbegin(), db.getSampleNames().cend(), ostream_iterator<string>(ofs, ","));
+	std::vector<std::string> sampleNamesVector(db.getSampleNames().cbegin(), db.getSampleNames().cend());
+	//ofs << endl;
 
 	// allocate row buffer (10000 for sample name + 100 for each row)
 	char* row = new char[10000 + db.getSamplesCount() * 100];
-	char* ptr = row;
+	char *ptr = row;
 
-	ptr += sprintf(ptr, "query-samples,total-kmers,");
-	ptr += num2str(db.getSampleKmersCount().data(), db.getSampleKmersCount().size(), ',', ptr);
-	*ptr++ = '\n';
-	ofs.write(row, ptr - row);
+	//ptr += sprintf(ptr, "query-samples,total-kmers,");
+	//ptr += num2str(db.getSampleKmersCount().data(), db.getSampleKmersCount().size(), ',', ptr);
+	//*ptr++ = '\n';
+	//ofs.write(row, ptr - row);
 
 	// Gather results in one thread
 	for (int task_id = 0; !similarityQueue.IsCompleted(); ++task_id) {
@@ -110,19 +111,25 @@ void New2AllConsole::run(const Params& params)
 		if (similarityQueue.Pop(task_id, task)) {
 
 			if ((task_id + 1) % 10 == 0) {
-				LOG_NORMAL << "\r" << task_id + 1 << "...                      " << std::flush;
+				//LOG_NORMAL << "\r" << task_id + 1 << "...                      " << std::flush;
 			}
 
 			LOG_DEBUG << "similarity queue -> (" << task_id + 1 << ", " << task->sampleName << "), buf:" << task->bufferId2 << endl;
 			auto& buf = buffers[task->bufferId2];
 
-			ptr = row;
-			ptr += sprintf(ptr, "%s,%lu,", task->sampleName.c_str(), task->kmersCount);
+			//ptr = row;
+			//ptr += sprintf(ptr, "%s,%lu,", task->sampleName.c_str(), task->kmersCount);
+			cout << task->sampleName.c_str() << ",";
 
 			if (params.sparseOut) {
 				std::replace_if(buf.begin(), buf.end(),
 					[below, above](uint32_t x) { return x >= below || x <= above; }, 0);
-				ptr += num2str_sparse(buf.data(), buf.size(), ',', ptr);
+				for (size_t i = 0; i < buf.size(); ++i, buf.data()) {
+                                        if (buf.data()[i] != 0) {
+                                                std::cout << sampleNamesVector[i] << ",";
+                                        }
+                                }
+				//ptr += num2str_sparse(buf.data(), buf.size(), ',', ptr);
 			}
 			else {
 				ptr += num2str(buf.data(), buf.size(), ',', ptr);
@@ -130,9 +137,9 @@ void New2AllConsole::run(const Params& params)
 
 			freeBuffersQueue.Push(task->bufferId2);
 			loader.releaseTask(*task);
-
-			*ptr++ = '\n';
-			ofs.write(row, ptr - row);
+			cout << endl ;
+			//*ptr++ = '\n';
+			//ofs.write(row, ptr - row);
 		}
 	}
 
@@ -143,8 +150,8 @@ void New2AllConsole::run(const Params& params)
 		w.join();
 	}
 
-	auto totalTime = std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - totalStart);
+	//auto totalTime = std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - totalStart);
 
-	LOG_NORMAL << endl << endl << "EXECUTION TIMES" << endl
-		<< "Total: " << totalTime.count() << endl;
+	//LOG_NORMAL << endl << endl << "EXECUTION TIMES" << endl
+	//	<< "Total: " << totalTime.count() << endl;
 }

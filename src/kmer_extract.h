@@ -84,7 +84,7 @@ public:
 				continue;
 			}
 
-			kmer_can = (kmer_str < kmer_rev) ? kmer_str : kmer_rev;
+			kmer_can = kmer_str;
 
 			// ensure at least 8-bit prefix
 			kmer_can = (kmer_can << kmer_prefix_shift) | (kmer_can & tail_mask);
@@ -178,7 +178,7 @@ public:
 				continue;
 			}
 
-			kmer_can = (kmer_str < kmer_rev) ? kmer_str : kmer_rev;
+			kmer_can = kmer_str;
 
 			// ensure at least 8-bit prefix
 			kmer_can = (kmer_can << kmer_prefix_shift) | (kmer_can & tail_mask);

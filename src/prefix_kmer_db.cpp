@@ -728,7 +728,7 @@ void PrefixKmerDb::serialize(std::ofstream& file, bool rawHashtables) const {
 	}
 
 	// store number of hashmaps
-	LOG_NORMAL << "Storing k-mer hashtables (" << (rawHashtables ? "raw" : "compressed") << ")..." << endl;
+	//LOG_NORMAL << "Storing k-mer hashtables (" << (rawHashtables ? "raw" : "compressed") << ")..." << endl;
 	auto time = std::chrono::high_resolution_clock::now();
 
 	temp = hashtables.size();
@@ -740,8 +740,8 @@ void PrefixKmerDb::serialize(std::ofstream& file, bool rawHashtables) const {
 	for (size_t i = 0; i < hashtables.size(); ++i) {
 		
 		if (i * 100 / hashtables.size() > percent) {
-			LOG_NORMAL << "\r" << percent << "%" << std::flush;
-			++percent;
+			//LOG_NORMAL << "\r" << percent << "%" << std::flush;
+			//++percent;
 		}
 
 		auto& ht = hashtables[i];
@@ -784,11 +784,11 @@ void PrefixKmerDb::serialize(std::ofstream& file, bool rawHashtables) const {
 		}
 	}
 	std::chrono::duration<double> dt = std::chrono::high_resolution_clock::now() - time;
-	LOG_NORMAL << "\r" << hashtables.size() << "/" << hashtables.size() << " hashtables stored in " << dt.count() << " s" <<  std::flush;
-	LOG_NORMAL << endl;
+	//LOG_NORMAL << "\r" << hashtables.size() << "/" << hashtables.size() << " hashtables stored in " << dt.count() << " s" <<  std::flush;
+	//LOG_NORMAL << endl;
 
 	// write patterns in portions
-	LOG_NORMAL << "Storing patterns..." << endl;
+	//LOG_NORMAL << "Storing patterns..." << endl;
 
 	time = std::chrono::high_resolution_clock::now();
 	temp = patterns.size();
@@ -801,8 +801,8 @@ void PrefixKmerDb::serialize(std::ofstream& file, bool rawHashtables) const {
 	for (size_t pid = 0; pid < patterns.size(); ++pid) {
 		
 		if (pid * 100 / patterns.size() > percent) {
-			LOG_NORMAL << "\r" << percent << "%" << std::flush;
-			++percent;
+			//LOG_NORMAL << "\r" << percent << "%" << std::flush;
+			//++percent;
 		}
 		
 		if (currentPtr + patterns[pid].get_bytes() > buffer + IO_BUFFER_BYTES) {
@@ -825,8 +825,8 @@ void PrefixKmerDb::serialize(std::ofstream& file, bool rawHashtables) const {
 	file.write(buffer, blockSize);
 
 	dt = std::chrono::high_resolution_clock::now() - time;
-	LOG_NORMAL << "\r" << patterns.size() << "/" << patterns.size() << " patterns stored in " << dt.count() << " s" << std::flush;
-	LOG_NORMAL << endl;
+	//LOG_NORMAL << "\r" << patterns.size() << "/" << patterns.size() << " patterns stored in " << dt.count() << " s" << std::flush;
+	//LOG_NORMAL << endl;
 
 	// save prefix histogram
 	//save(file, prefixHistogram.size());
@@ -882,7 +882,7 @@ bool PrefixKmerDb::deserialize(std::ifstream& file, DeserializationMode mode) {
 	}
 
 	if (mode != DeserializationMode::SkipHashtables) {
-		LOG_NORMAL << "Loading k-mer hashtables (" << (rawHashtables ? "raw" : "compressed") << ")..." << endl;
+		//LOG_NORMAL << "Loading k-mer hashtables (" << (rawHashtables ? "raw" : "compressed") << ")..." << endl;
 	}
 	
 	auto time = std::chrono::high_resolution_clock::now();
@@ -898,8 +898,8 @@ bool PrefixKmerDb::deserialize(std::ifstream& file, DeserializationMode mode) {
 	for (size_t i = 0; i < hashtables.size(); ++i) {
 		
 		if (mode != DeserializationMode::SkipHashtables && (i * 100 / hashtables.size() > percent)) {
-			LOG_NORMAL << "\r" << percent << "%" << std::flush;
-			++percent;
+			//LOG_NORMAL << "\r" << percent << "%" << std::flush;
+			//++percent;
 		}
 
 		auto& ht = hashtables[i];
@@ -960,15 +960,15 @@ bool PrefixKmerDb::deserialize(std::ifstream& file, DeserializationMode mode) {
 	
 	std::chrono::duration<double> dt = std::chrono::high_resolution_clock::now() - time;
 	if (mode != DeserializationMode::SkipHashtables) {
-		LOG_NORMAL << "\r" << hashtables.size() << "/" << hashtables.size() << " hashtables loaded in " << dt.count() << " s" << std::flush;
-		LOG_NORMAL << endl;
+		//LOG_NORMAL << "\r" << hashtables.size() << "/" << hashtables.size() << " hashtables loaded in " << dt.count() << " s" << std::flush;
+		//LOG_NORMAL << endl;
 	}
 
 	if (!file) {
 		return false;
 	}
 
-	LOG_NORMAL << "Loading patterns..." << endl;
+	//LOG_NORMAL << "Loading patterns..." << endl;
 	time = std::chrono::high_resolution_clock::now();
 
 	// load patterns
@@ -988,8 +988,8 @@ bool PrefixKmerDb::deserialize(std::ifstream& file, DeserializationMode mode) {
 		while (currentPtr < buffer + blockSize) {
 
 			if (pid * 100 / patterns.size() > percent) {
-				LOG_NORMAL << "\r" << percent << "%" << std::flush;
-				++percent;
+				//LOG_NORMAL << "\r" << percent << "%" << std::flush;
+				//++percent;
 			}
 
 			currentPtr = patterns[pid].unpack(currentPtr);
@@ -997,8 +997,8 @@ bool PrefixKmerDb::deserialize(std::ifstream& file, DeserializationMode mode) {
 		}
 	}
 	dt = std::chrono::high_resolution_clock::now() - time;
-	LOG_NORMAL << "\r" << patterns.size() << "/" << patterns.size() << " patterns loaded in " << dt.count() << " s" << std::flush;
-	LOG_NORMAL << endl;
+	//LOG_NORMAL << "\r" << patterns.size() << "/" << patterns.size() << " patterns loaded in " << dt.count() << " s" << std::flush;
+	//LOG_NORMAL << endl;
 
 	if (!file) {
 		return false;
